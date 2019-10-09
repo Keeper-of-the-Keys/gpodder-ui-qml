@@ -28,6 +28,7 @@ MediaPlayer {
     property string episode_title: ''
     property var episode_chapters: ([])
     property string podcast_title: ''
+    property string podcast_coverart: ''
     signal playerCreated()
 
     property var queue: ([])
@@ -109,6 +110,7 @@ MediaPlayer {
             player.episode_title = episode.title;
             player.episode_chapters = episode.chapters;
             player.podcast_title = episode.podcast_title;
+            player.podcast_coverart = episode.podcast_coverart;
             var source = episode.source;
             if (source.indexOf('/') === 0) {
                 player.source = 'file://' + source;
@@ -146,6 +148,7 @@ MediaPlayer {
     }
 
     function flushToDisk() {
+        sendPositionToCore(lastPosition);
         py.call('main.save_playback_state', []);
     }
 
@@ -210,8 +213,8 @@ MediaPlayer {
     }
 
     property var savePlaybackPositionTimer: Timer {
-        // Save position every minute during playback
-        interval: 60 * 1000
+        // Save position every 20s during playback
+        interval: 20 * 1000
         repeat: true
         running: player.isPlaying
         onTriggered: player.flushToDisk();
@@ -219,7 +222,7 @@ MediaPlayer {
 
     property var savePlaybackAfterStopTimer: Timer {
         // Save position shortly after every seek and pause event
-        interval: 5 * 1000
+        interval: 3 * 1000
         repeat: false
         onTriggered: player.flushToDisk();
     }
